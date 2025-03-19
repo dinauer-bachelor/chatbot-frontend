@@ -11,8 +11,11 @@
         </div>
         <div class="message-container">
             <div class="message" :class="{ own: message.author === Author.USER }" v-for="message in messages">
-                <img v-if="message.author === Author.CLARA" class="img-small" src="/image_small.png" alt="">
-                <p>{{ message.text }}</p>
+                <img v-if="message.author === Author.CLARA" class="img-small" src="/clara_profile.jpeg" alt="">
+                <div class="message-content">
+                    <p class="grayed-out"><span v-if="message.author === Author.CLARA">Clara</span><span v-else>You</span><span v-if="message.writtenAt"> • {{ dayjs(message.writtenAt).format("HH:mm") }} Uhr</span> </p>
+                    <p>{{ message.text }}</p>
+                </div>
             </div>
             <p v-if="loading" class="message thinking">Wait a second. I am thinking...</p>
         </div>
@@ -23,6 +26,7 @@
 <script setup lang="ts">
 import { Author, Message } from '~/classes/Message';
 import { chat } from '~/requests/chat';
+import dayjs, { Dayjs } from 'dayjs';
 
 const messages: Ref<Message[]> = ref([]);
 
@@ -30,12 +34,12 @@ const loading = ref(false);
 
 function sendMessage(payload: string)
 {
-    messages.value.push(new Message(payload, Author.USER))
+    messages.value.push(new Message(payload, Author.USER, new Date()))
     loading.value = true;
     chat(payload, (message: string) => {
         setTimeout(() => {
             loading.value = false;
-            messages.value.push(new Message(message, Author.CLARA));
+            messages.value.push(new Message(message, Author.CLARA, new Date()));
         }, 1500);
     });
     
@@ -91,6 +95,11 @@ function sendMessage(payload: string)
     grid-template-columns: 3rem auto;
     gap: 0.5rem;
 }
+.message-content {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 0.25rem;
+}
 .message.own {
     background-color: rgb(233, 244, 255);
     margin-left: 6rem;
@@ -105,5 +114,9 @@ function sendMessage(payload: string)
     width: 3rem;
     height: 3rem;
     border-radius: 0.25rem;
+}
+.grayed-out {
+    font-size: 0.8rem;
+    color: #2e2e2e;
 }
 </style>

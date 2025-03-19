@@ -6,7 +6,8 @@
 
 <script setup lang="ts">
 useHead({
-  title: 'Your conversation with Clara!'
+  title: 'Your conversation with Clara!',
+  link: [{ rel: 'icon', type: 'image/x-icon', href: '/clara_profile.jpeg' }]
 })
 </script>
 
