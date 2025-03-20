@@ -9,24 +9,17 @@
                 <p>Go ahead and ask me anything!</p>
             </div>
         </div>
-        <div class="message-container">
-            <div class="message" :class="{ own: message.author === Author.USER }" v-for="message in messages">
-                <img v-if="message.author === Author.CLARA" class="img-small" src="/clara_profile.jpeg" alt="">
-                <div class="message-content">
-                    <p class="grayed-out"><span v-if="message.author === Author.CLARA">Clara</span><span v-else>You</span><span v-if="message.writtenAt"> • {{ dayjs(message.writtenAt).format("HH:mm") }} Uhr</span> </p>
-                    <p>{{ message.text }}</p>
-                </div>
-            </div>
-            <p v-if="loading" class="message thinking">Wait a second. I am thinking...</p>
-        </div>
+        <ChatSessionComponent :loading="loading" :messages="messages" :user="user"></ChatSessionComponent>
         <InputComponent @submit="(payload: string) => sendMessage(payload)"></InputComponent>
     </div>
 </template>
 
 <script setup lang="ts">
 import { Author, Message } from '~/classes/Message';
+import { MessageContext } from '~/classes/MessageContext';
 import { chat } from '~/requests/chat';
-import dayjs, { Dayjs } from 'dayjs';
+
+const user = 'Andreas';
 
 const messages: Ref<Message[]> = ref([]);
 
@@ -36,13 +29,19 @@ function sendMessage(payload: string)
 {
     messages.value.push(new Message(payload, Author.USER, new Date()))
     loading.value = true;
-    chat(payload, (message: string) => {
+    const message = new Message(payload, Author.USER, new Date());
+    const messageContext = new MessageContext();
+    messageContext.user = user;
+    message.context = messageContext;
+    chat(message, (message: string) => {
         setTimeout(() => {
             loading.value = false;
             messages.value.push(new Message(message, Author.CLARA, new Date()));
         }, 1500);
+    }, () => {
+        loading.value = false;
+        messages.value.push(new Message('I encountered an unknown error. Sorry.', Author.CLARA, new Date(), true));
     });
-    
 }
 </script>
 
@@ -77,46 +76,5 @@ function sendMessage(payload: string)
 }
 .about-clara p {
     font-size: 1.1rem;
-}
-.message-container {
-    display: grid;
-    gap: 1rem;
-    align-content: flex-start;
-}
-.message {
-    background-color: white;
-    margin-left: 0;
-    margin-right: 6rem;
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-    border: 1px solid rgb(189, 200, 216);
-    max-width: 100%;
-    display: grid;
-    grid-template-columns: 3rem auto;
-    gap: 0.5rem;
-}
-.message-content {
-    display: grid;
-    grid-template-rows: auto 1fr;
-    gap: 0.25rem;
-}
-.message.own {
-    background-color: rgb(233, 244, 255);
-    margin-left: 6rem;
-    margin-right: 0;
-    display: block;
-}
-.message.thinking {
-    justify-self: flex-start;
-    display: block;
-}
-.img-small {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 0.25rem;
-}
-.grayed-out {
-    font-size: 0.8rem;
-    color: #2e2e2e;
 }
 </style>

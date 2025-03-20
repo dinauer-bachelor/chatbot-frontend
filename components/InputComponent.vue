@@ -34,6 +34,7 @@ function sendMessage()
     outline: none;
     resize: vertical;
     padding: 0.5rem;
+    border: 3px solid rgb(98, 182, 255);
 }
 .button {
     background-color: rgb(0, 108, 202);
