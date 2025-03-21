@@ -5,7 +5,7 @@
                 <img v-if="message.author === Author.CLARA" class="img-small" src="@/public/clara_profile.jpeg" alt="">
                 <div class="message-content">
                     <p class="grayed-out"><span v-if="message.author === Author.CLARA">Clara</span><span v-else>{{ user }} (me)</span><span v-if="message.writtenAt"> • {{ dayjs(message.writtenAt).format("HH:mm") }} Uhr</span> </p>
-                    <p class="message-text">{{ message.text }}</p>
+                    <p class="message-text" v-if="message.text">{{ message.text.replaceAll("*", "") }}</p>
                 </div>
             </div>
             <p v-if="loading" class="message thinking">Wait a second. I am thinking...<img class="loading-icon" src="/loading.svg" alt=""></p>
